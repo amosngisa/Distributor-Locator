@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: ADistributor Locator
+ * Plugin Name: Distributor Locator
  * Plugin URI: https://github.com/amosngisa/Distributor-Locator
  * Description: A plugin to add distributors and allow users to search by country or state.
  * Version: 1.1

@@ -20,4 +20,32 @@
 
 1. After activation, go to the **Distributor** section in your WordPress admin dashboard.
 2. Add your distributors with relevant details like name, address, country, and state.
-3. To allow users to search distributors by country or state, use the shortcode below on any page or post: [distributor_map]
+3. To allow users to search distributors by country or state, use the shortcode below on any page or post:
+4. Customize the search form and results in the plugin settings.
+
+## Shortcode
+
+- `[distributor_map]`: Displays a search form allowing users to search distributors by country or state.
+
+## Customization
+
+You can extend the plugin’s functionality by adding custom CSS or JavaScript. For example, to customize the search form, you can enqueue your own styles and scripts through your theme or plugin.
+
+## Support
+
+For any issues, feel free to open an issue on the [GitHub repository](https://github.com/amosngisa/Distributor-Locator) or contact the author.
+
+## License
+
+This plugin is licensed under the [GPLv2 or later](https://www.gnu.org/licenses/gpl-2.0.html).
+
+---
+
+### Screenshots
+
+1. **Admin Panel** - Add and manage distributors.
+2. ![admin](image.png)
+3. **Search Form** - Users can search distributors by country or state.
+4. ![search form](image-1.png)
+5. **Search Results** - Display matching distributors based on user input.
+6. ![search results](image-2.png)

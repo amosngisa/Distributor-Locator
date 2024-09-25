@@ -10,18 +10,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listener for the International selector
     internationalSelector.addEventListener('change', function() {
-        if (this.value) {
-            // Reset US dropdown when International is selected
-            unitedStatesSelector.selectedIndex = 0;
+        if (this.value === '') {
+            clearResults(); // Clear results if default option is selected
+        } else {
+            unitedStatesSelector.selectedIndex = 0; // Reset US selector
             fetchDistributors('International', this.value);
         }
     });
 
     // Event listener for the United States selector
     unitedStatesSelector.addEventListener('change', function() {
-        if (this.value) {
-            // Reset International dropdown when US is selected
-            internationalSelector.selectedIndex = 0;
+        if (this.value === '') {
+            clearResults(); // Clear results if default option is selected
+        } else {
+            internationalSelector.selectedIndex = 0; // Reset International selector
             fetchDistributors('USA', this.value);
         }
     });
@@ -82,5 +84,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 resultsContainer.removeAttribute('hidden');
             }
         });
+    }
+
+    // Function to clear the search results
+    function clearResults() {
+        distributorList.innerHTML = ''; // Clear the distributor list
+        resultsContainer.setAttribute('hidden', true); // Hide the results container
     }
 });

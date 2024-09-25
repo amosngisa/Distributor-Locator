@@ -195,6 +195,7 @@ function dl_get_countries_states() {
         SELECT DISTINCT meta_value 
         FROM $wpdb->postmeta 
         WHERE meta_key = %s
+        AND meta_value != ''
     ", $meta_key));
 
     wp_send_json($countriesStates);

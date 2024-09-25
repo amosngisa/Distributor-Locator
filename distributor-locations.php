@@ -1,17 +1,12 @@
 <?php
 /*
-Plugin Name: Distributor Locator
-Description: A plugin to add distributors and allow users to search by country or state.
-Version: 1.5
-Author: Amos Nyaundi
-*/
-/**
- * Plugin Name: ActiveCampaign Postmark (Official)
- * Plugin URI: https://postmarkapp.com/
+ * Plugin Name: ADistributor Locator
+ * Plugin URI: https://github.com/amosngisa/Distributor-Locator
  * Description: A plugin to add distributors and allow users to search by country or state.
  * Version: 1.1
  * Author: Amos Nyaundi
  */
+
 // Register a distributor custom post type
 function dl_register_distributor_post_type() {
     $labels = array(
@@ -141,36 +136,23 @@ function dl_set_custom_sortable_distributor_columns($columns) {
 }
 add_filter('manage_edit-distributor_sortable_columns', 'dl_set_custom_sortable_distributor_columns');
 
+// Hook to enqueue styles and scripts
+add_action('wp_enqueue_scripts', 'distributor_locations_enqueue_assets');
+function distributor_locations_enqueue_assets() {
+    // Plugin directory URL
+    $plugin_url = plugin_dir_url(__FILE__);
+
+    // Enqueue the CSS file
+    wp_enqueue_style('distributor-locations-style', $plugin_url . 'css/style.css');
+
+    // Enqueue the JS file
+    wp_enqueue_script('distributor-locations-script', $plugin_url . 'js/script.js', array('jquery'), null, true); 
+    // The 'array('jquery')' adds jQuery as a dependency, and 'true' loads the JS file in the footer.
+}
+
 // Shortcode to display distributors based on selected country or state
 function dl_distributor_map_shortcode() {
     ?>
-		<style>
-			 .form-container {
-				background-color: #fff;
-				padding: 20px;
-				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-				border-radius: 8px;
-				width: 300px;
-			}
-			.form-group {
-				display: flex;
-				align-items: center;
-			}
-			.form-group select {
-				width: 60%;
-				padding: 8px;
-				border: 1px solid #ccc;
-				border-radius: 4px;
-				font-size: 13px;
-				cursor: pointer;
-			}
-			.label {
-				margin-left: 10px;
-				font-size: 13px;
-				white-space: nowrap;
-			}
-    	</style>
-
 		<div class="form-container">
 			<div class="form-group">
 				 <select id="international">
@@ -187,51 +169,7 @@ function dl_distributor_map_shortcode() {
 			</div>
 		</div>
     <section class="content-max-width">
-        <style>
-			.results {
-				margin-top: 20px;
-			}
-			.distributor-grid {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 20px; /* Adjust gap between items */
-			}
-			.distributor-item {
-				flex: 0 1 calc(25% - 20px); /* 4 items per row with gap consideration */
-				border: 1px solid #ccc;
-				padding: 15px;
-				border-radius: 5px;
-				font-size: 13px;
-			}
-			 .note {
-                font-weight: bold;
-				 font-size: 13px;
-            }
-			.hidden {
-				display: none;
-			}
-
-			@media (max-width: 1024px) {
-				.distributor-item {
-					flex: 0 1 calc(33.33% - 20px); /* 3 items per row for medium screens */
-				}
-			}
-
-			@media (max-width: 768px) {
-				.distributor-item {
-					flex: 0 1 calc(50% - 20px); /* 2 items per row for small screens */
-				}
-			}
-
-			@media (max-width: 480px) {
-				.distributor-item {
-					flex: 0 1 100%; /* 1 item per row for extra small screens */
-				}
-				.country {
-					flex: 1 1 100%; /* Full width dropdown on small screens */
-				}
-			}
-        </style>
+       
         <div class="results" id="majibu" hidden>
 			<p class="note">Your search retrieved the following representatives</p>
 				<hr>
@@ -240,82 +178,7 @@ function dl_distributor_map_shortcode() {
             </div>
         </div>
     </section>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const internationalSelector = document.getElementById('international');
-            const unitedStatesSelector = document.getElementById('unitedstates');
-            const distributorList = document.getElementById('distributor-list');
-
-            fetchCountriesStates('International', internationalSelector);
-            fetchCountriesStates('USA', unitedStatesSelector);
-
-            internationalSelector.addEventListener('change', function() {
-                if (this.value) fetchDistributors('International', this.value);
-            });
-
-            unitedStatesSelector.addEventListener('change', function() {
-                if (this.value) fetchDistributors('USA', this.value);
-            });
-
-            function fetchCountriesStates(region, dropdown) {
-                const data = { action: 'get_countries_states', region: region };
-
-                fetch(ajaxurl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(data)
-                })
-                .then(response => response.json())
-                .then(countriesOrStates => {
-                    countriesOrStates.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item;
-                        option.textContent = item;
-                        dropdown.appendChild(option);
-                    });
-                });
-            }
-
-            function fetchDistributors(region, countryOrState) {
-               const data = {
-					action: 'get_distributors',
-					region: region,
-					countryOrState: countryOrState
-				};
-				
-				let resultsContainer = document.getElementById('majibu');
-
-				fetch(ajaxurl, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: new URLSearchParams(data)
-				})
-				.then(response => response.json())
-				.then(distributors => {
-					distributorList.innerHTML = ''; // Clear previous results
-					if (distributors.length > 0) {
-						resultsContainer.removeAttribute("hidden");
-						distributorList.classList.add('distributor-grid'); // Add grid class
-						distributors.forEach(distributor => {
-							distributorList.innerHTML += `
-								<div class="distributor-item">
-									<strong>${distributor.name}</strong><br/>
-									${distributor.address}<br/>
-									Phone: ${distributor.phone}<br/>
-									Email: <a href="mailto:${distributor.email}">${distributor.email}</a><br/>
-									Website: <a href="${distributor.website.startsWith('http') ? distributor.website : 'http://' + distributor.website}" target="_blank">${distributor.website}</a>
-
-								</div>
-							`;
-						});
-					} else {
-						distributorList.innerHTML = '<p>No distributors found.</p>';
-						resultsContainer.removeAttribute("hidden");
-					}
-                });
-            }
-        });
-    </script>
+  
     <?php
 }
 add_shortcode('distributor_map', 'dl_distributor_map_shortcode');

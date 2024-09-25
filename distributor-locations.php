@@ -5,6 +5,7 @@
  * Description: A plugin to add distributors and allow users to search by country or state.
  * Version: 1.1
  * Author: Amos Nyaundi
+ * Author URI: https://www.linkedin.com/in/amosngisa
  */
 
 // Register a distributor custom post type

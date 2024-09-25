@@ -44,8 +44,10 @@ This plugin is licensed under the [GPLv2 or later](https://www.gnu.org/licenses/
 ### Screenshots
 
 1. **Admin Panel** - Add and manage distributors.
-2. ![admin](image.png)
-3. **Search Form** - Users can search distributors by country or state.
-4. ![search form](image-1.png)
-5. **Search Results** - Display matching distributors based on user input.
-6. ![search results](image-2.png)
+ ![admin](image.png)
+
+2. **Search Form** - Users can search distributors by country or state.
+ ![search form](image-1.png)
+ 
+3. **Search Results** - Display matching distributors based on user input.
+ ![search results](image-2.png)

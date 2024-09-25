@@ -1,4 +1,4 @@
-# My Custom Distributor Search Plugin
+# Distributor Locator Plugin
 
 **Description**: A plugin to add distributors and allow users to search by country or state.
 

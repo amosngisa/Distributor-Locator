@@ -1,0 +1,68 @@
+.form-container {
+   background-color: #fff;
+   padding: 20px;
+   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+   border-radius: 8px;
+   width: 300px;
+}
+.form-group {
+   display: flex;
+   align-items: center;
+}
+.form-group select {
+   width: 60%;
+   padding: 8px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   font-size: 13px;
+   cursor: pointer;
+}
+.label {
+   margin-left: 10px;
+   font-size: 13px;
+   white-space: nowrap;
+}
+
+.results {
+    margin-top: 20px;
+}
+.distributor-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust gap between items */
+}
+.distributor-item {
+    flex: 0 1 calc(25% - 20px); /* 4 items per row with gap consideration */
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+ .note {
+    font-weight: bold;
+     font-size: 13px;
+}
+.hidden {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .distributor-item {
+        flex: 0 1 calc(33.33% - 20px); /* 3 items per row for medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .distributor-item {
+        flex: 0 1 calc(50% - 20px); /* 2 items per row for small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .distributor-item {
+        flex: 0 1 100%; /* 1 item per row for extra small screens */
+    }
+    .country {
+        flex: 1 1 100%; /* Full width dropdown on small screens */
+    }
+}

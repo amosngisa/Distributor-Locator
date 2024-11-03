@@ -3,7 +3,7 @@
  * Plugin Name: Distributor Locator
  * Plugin URI: https://github.com/amosngisa/Distributor-Locator
  * Description: A plugin to add distributors and allow users to search by country or state.
- * Version: 1.1
+ * Version: 1.2
  * Author: Amos Nyaundi
  * Author URI: https://www.linkedin.com/in/amosngisa
  */
@@ -26,7 +26,7 @@ function dl_register_distributor_post_type() {
         'not_found_in_trash' => 'No distributors found in Trash.',
     );
 
-    $args = array(
+       $args = array(
         'labels' => $labels,
         'public' => true,
         'publicly_queryable' => true,
@@ -62,10 +62,11 @@ function dl_display_distributor_meta_box($post) {
     // Retrieve existing metadata
     $fields = [
         'country' => 'Country',
-        'state' => 'State (if USA)',
+        'state' => 'State',
         'name' => 'Distributor Name',
         'address' => 'Address',
         'phone' => 'Phone',
+        'fax' => 'Fax',
         'email' => 'Email',
         'website' => 'Website'
     ];
@@ -77,11 +78,85 @@ function dl_display_distributor_meta_box($post) {
     }
 }
 
+// Add a submenu for CSV Import under Distributors
+function dl_register_csv_import_submenu() {
+    add_submenu_page(
+        'edit.php?post_type=distributor',
+        'Import Distributors from CSV',
+        'Import CSV',
+        'manage_options',
+        'distributor_csv_import',
+        'dl_distributor_csv_import_page'
+    );
+}
+add_action('admin_menu', 'dl_register_csv_import_submenu');
+
+// Display CSV upload form
+function dl_distributor_csv_import_page() {
+    ?>
+    <div class="wrap">
+        <h1>Import Distributors from CSV</h1>
+        <form method="post" enctype="multipart/form-data">
+			
+            <input type="file" name="distributor_csv" accept=".csv" required />
+            <br><br>
+            <input type="submit" name="submit_csv" class="button button-primary" value="Import CSV">
+        </form>
+    </div>
+    <?php
+}
+
+function dl_handle_csv_import() {
+    if (isset($_POST['submit_csv']) && !empty($_FILES['distributor_csv']['tmp_name'])) {
+        $file = $_FILES['distributor_csv']['tmp_name'];
+        $handle = fopen($file, 'r');
+        
+        // Skip the header row
+        fgetcsv($handle);
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+			$country = sanitize_text_field($row[0]);
+            $name = sanitize_text_field($row[1]);
+            $address = sanitize_text_field($row[2]);
+			$website = sanitize_text_field($row[3]);
+            $email = sanitize_email($row[4]);
+            $phone = sanitize_text_field($row[5]);
+			$fax = sanitize_text_field($row[6]);
+			$state = sanitize_text_field($row[7]);
+            
+            // Create a new distributor post
+            $post_id = wp_insert_post(array(
+                'post_title' => $name,
+                'post_type' => 'distributor',
+                'post_status' => 'publish'
+            ));
+
+            // Save post meta
+            update_post_meta($post_id, 'distributor_name', $name);
+            update_post_meta($post_id, 'distributor_address', $address);
+            update_post_meta($post_id, 'distributor_email', $email);
+            update_post_meta($post_id, 'distributor_phone', $phone);
+            update_post_meta($post_id, 'distributor_fax', $fax);
+            update_post_meta($post_id, 'distributor_website', $website);
+            update_post_meta($post_id, 'distributor_country', $country);
+			update_post_meta($post_id, 'distributor_state', $state);
+        }
+
+        fclose($handle);
+
+        // Show a success message
+        echo '<div class="notice notice-success is-dismissible">
+                 <p>CSV Imported Successfully!</p>
+              </div>';
+    }
+}
+add_action('admin_init', 'dl_handle_csv_import');
+
 // Save distributor details
 function dl_save_distributor_details($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
 
-    $fields = ['country', 'state', 'name', 'address', 'phone', 'email', 'website'];
+    $fields = ['country', 'state', 'name', 'address', 'phone', 'email', 'website', 'fax', 'state'];
     
     foreach ($fields as $field) {
         if (isset($_POST["distributor_$field"])) {
@@ -99,8 +174,10 @@ function dl_set_custom_edit_distributor_columns($columns) {
     $columns['address'] = 'Address';
     $columns['email'] = 'Email';
     $columns['phone'] = 'Phone';
+	$columns['fax'] = 'Fax';
     $columns['website'] = 'Website';
-    $columns['country'] = 'Country/State';
+    $columns['country'] = 'Country';
+	$columns['state'] = 'State';
     return $columns;
 }
 add_filter('manage_distributor_posts_columns', 'dl_set_custom_edit_distributor_columns');
@@ -112,7 +189,10 @@ function dl_custom_distributor_column($column, $post_id) {
             echo esc_html(get_post_meta($post_id, 'distributor_address', true));
             break;
         case 'country':
-            echo esc_html(get_post_meta($post_id, 'distributor_country', true) ?: get_post_meta($post_id, 'distributor_state', true));
+            echo esc_html(get_post_meta($post_id, 'distributor_country', true) );
+            break;
+		case 'state':
+            echo esc_html(get_post_meta($post_id, 'distributor_state', true));
             break;
         case 'email':
             echo esc_html(get_post_meta($post_id, 'distributor_email', true));
@@ -120,18 +200,24 @@ function dl_custom_distributor_column($column, $post_id) {
         case 'phone':
             echo esc_html(get_post_meta($post_id, 'distributor_phone', true));
             break;
+        case 'fax':
+            echo esc_html(get_post_meta($post_id, 'distributor_fax', true));
+            break;
         case 'website':
             echo esc_html(get_post_meta($post_id, 'distributor_website', true));
             break;
     }
 }
+
 add_action('manage_distributor_posts_custom_column', 'dl_custom_distributor_column', 10, 2);
 
 // Make the new columns sortable
 function dl_set_custom_sortable_distributor_columns($columns) {
     $columns['country'] = 'country';
+	$columns['state'] = 'state';
     $columns['email'] = 'email';
     $columns['phone'] = 'phone';
+	$columns['fax'] = 'Fax';
     $columns['website'] = 'website';
     return $columns;
 }
@@ -154,23 +240,32 @@ function distributor_locations_enqueue_assets() {
 // Shortcode to display distributors based on selected country or state
 function dl_distributor_map_shortcode() {
     ?>
-		<div class="form-container">
-			<div class="form-group">
-				 <select id="international">
-                    <option value="" selected="">Select a Country</option>
-                </select>
-				<span class="label">International</span>
-			</div>
+    <div class="form-container">
+        <div class="form-group">
+            <select id="international">
+                <option value="" selected="">Select a Country</option>
+                <!-- Countries populated by JS -->
+            </select>
+            <span class="label">International</span>
+        </div>
 
-			<div class="form-group">
-				 <select id="unitedstates">
-                    <option value="" selected="">Select a State</option>
-                </select>
-				<span class="label">US</span>
-			</div>
-		</div>
-    <section class="content-max-width">
-       
+        <div class="form-group" id="state-group-international" style="display:none;">
+            <select id="state-international">
+                <option value="" selected>Select a State</option>
+                <!-- States for Australia populated by JS -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <select id="unitedstates">
+                <option value="" selected="">Select a State</option>
+                <!-- USA states populated by JS -->
+            </select>
+            <span class="label">USA</span>
+        </div>
+    </div>
+
+   <section class="content-max-width">
         <div class="results" id="majibu" hidden>
 			<p class="note">Your search retrieved the following representatives</p>
 				<hr>
@@ -179,29 +274,33 @@ function dl_distributor_map_shortcode() {
             </div>
         </div>
     </section>
-  
     <?php
 }
 add_shortcode('distributor_map', 'dl_distributor_map_shortcode');
 
-// AJAX handler for getting countries and states
+// AJAX handler for getting countries (excluding USA for International) and states
 function dl_get_countries_states() {
     $region = sanitize_text_field($_POST['region']);
     
-    $meta_key = $region === 'USA' ? 'distributor_state' : 'distributor_country';
-    
     global $wpdb;
-    $countriesStates = $wpdb->get_col($wpdb->prepare("
-        SELECT DISTINCT meta_value 
-        FROM $wpdb->postmeta 
-        WHERE meta_key = %s
-        AND meta_value != ''
-    ", $meta_key));
 
-    wp_send_json($countriesStates);
+    if ($region === 'International') {
+        // Get all countries except USA
+        $countries = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = 'distributor_country' AND meta_value != 'USA' AND meta_value != ''");
+        wp_send_json($countries);
+    } elseif ($region === 'USA') {
+        // Get states associated with USA
+        $states = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = 'distributor_state' AND post_id IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'distributor_country' AND meta_value = 'USA')");
+        wp_send_json($states);
+    } elseif ($region === 'Australia') {
+        // Get states associated with Australia
+        $australiaStates = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = 'distributor_state' AND post_id IN (SELECT post_id FROM $wpdb->postmeta WHERE meta_key = 'distributor_country' AND meta_value = 'Australia')");
+        wp_send_json($australiaStates);
+    }
 }
 add_action('wp_ajax_get_countries_states', 'dl_get_countries_states');
 add_action('wp_ajax_nopriv_get_countries_states', 'dl_get_countries_states');
+
 
 // AJAX handler for getting distributors
 function dl_get_distributors() {

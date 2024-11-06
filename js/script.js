@@ -92,9 +92,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="distributor-item">
                             <strong>${distributor.name}</strong><br/>
                             ${distributor.address}<br/>
-                            ${distributor.phone}<br/>
-                            <a href="mailto:${distributor.email}">${distributor.email}</a><br/>
-                            <a href="${distributor.website.startsWith('http') ? distributor.website : 'http://' + distributor.website}" target="_blank">${distributor.website}</a>
+                            PH: ${distributor.phone}<br/>
+                            E: <a href="mailto:${distributor.email}">${distributor.email}</a><br/>
+                            W: <a href="${distributor.website.startsWith('http') ? distributor.website : 'http://' + distributor.website}" target="_blank">${distributor.website}</a>
+
                         </div>
                     `;
                 });

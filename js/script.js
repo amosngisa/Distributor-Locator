@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// Function to fetch countries or states and populate the respective dropdown
     function fetchCountriesStates(region, selector) {      
 		const data = { action: 'get_countries_states', region: region };
-        fetch(ajaxurl, {
+        fetch(wp_vars.ajaxurl, {
             method: 'POST',
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 			body: new URLSearchParams(data)
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             countryOrState: countryOrState
         };
 
-        fetch(ajaxurl, {
+        fetch(wp_vars.ajaxurl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(data)

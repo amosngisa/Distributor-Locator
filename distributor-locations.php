@@ -3,7 +3,7 @@
  * Plugin Name: Distributor Locator
  * Plugin URI: https://github.com/amosngisa/Distributor-Locator
  * Description: A plugin to add distributors and allow users to search by country or state.
- * Version: 1.2
+ * Version: 1.5
  * Author: Amos Nyaundi
  * Author URI: https://www.linkedin.com/in/amosngisa
  */
@@ -233,8 +233,10 @@ function distributor_locations_enqueue_assets() {
     wp_enqueue_style('distributor-locations-style', $plugin_url . 'css/style.css');
 
     // Enqueue the JS file
-    wp_enqueue_script('distributor-locations-script', $plugin_url . 'js/script.js', array('jquery'), null, true); 
-    // The 'array('jquery')' adds jQuery as a dependency, and 'true' loads the JS file in the footer.
+    wp_enqueue_script('distributor-locations-script', $plugin_url . 'js/script.js', array('jquery'), null, true);
+	wp_localize_script('distributor-locations-script', 'wp_vars', array(
+    'ajaxurl' => admin_url('admin-ajax.php'),
+	));
 }
 
 // Shortcode to display distributors based on selected country or state
